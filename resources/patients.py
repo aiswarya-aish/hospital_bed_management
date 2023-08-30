@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.post("/hospital/patient")
 def add_new_patient(patient: Patient, db: Session = Depends(get_db)):
-    patient_id = uuid.uuid4()  # Generate UUID
+    patient_id = uuid.uuid4().hex  # Generate UUID
     db_patient = DBPatient(patient_id=str(patient_id), **patient.dict())
     db.add(db_patient)
     db.commit()
@@ -20,7 +20,7 @@ def get_patients(db: Session = Depends(get_db)):
     return db.query(DBPatient).all()
 
 @router.put("/hospital/patients/{patient_id}")
-def update_patient(patient_id: uuid.UUID, updated_patient: Patient, db: Session = Depends(get_db)):
+def update_patient(patient_id: str, updated_patient: Patient, db: Session = Depends(get_db)):
     db_patient = db.query(DBPatient).filter(DBPatient.patient_id == patient_id).first()
     if db_patient is None:
         raise HTTPException(status_code=404, detail="Patient not found")
@@ -30,14 +30,14 @@ def update_patient(patient_id: uuid.UUID, updated_patient: Patient, db: Session 
     return {"message": "Patient details updated successfully"}
 
 @router.get("/hospital/patients/{patient_id}")
-def get_patient(patient_id: uuid.UUID, db: Session = Depends(get_db)):
+def get_patient(patient_id: str, db: Session = Depends(get_db)):
     db_patient = db.query(DBPatient).filter(DBPatient.patient_id == patient_id).first()
     if db_patient is None:
         raise HTTPException(status_code=404, detail="Patient not found")
     return db_patient
 
 @router.delete("/hospital/patients/{patient_id}")
-def delete_patient(patient_id: uuid.UUID, db: Session = Depends(get_db)):
+def delete_patient(patient_id: str, db: Session = Depends(get_db)):
     db_patient = db.query(DBPatient).filter(DBPatient.patient_id == patient_id).first()
     if db_patient is None:
         raise HTTPException(status_code=404, detail="Patient not found")
